@@ -7,12 +7,14 @@ import {
 import { LoginRequestDto, LoginResponseDto } from '../../dto/auth/login.dto';
 import { USER_ROLES } from '../../enum/role';
 import { LoginValidationPipe } from '../../pipes/login.pipes';
-import { RefreshTokenDto } from '../../dto/auth/refresh-token.dto';
+import { RefreshTokenRequestDto } from '../../dto/auth/refresh-token.dto';
 import { RefreshValidationPipe } from '../../pipes/refresh.pipes';
 import { RegisterValidationPipe } from '../../pipes/register.pipes';
 import { RegisterRequestDto } from '../../dto/auth/register.dto';
 import { SwaggerUtil } from '../../utils/swagger.util';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('/auth')
 export class AuthController {
   constructor(private _authService: AuthService) {}
@@ -39,12 +41,12 @@ export class AuthController {
   @Post('/refresh')
   @SwaggerUtil({
     summary: 'Generating new access token using refresh token',
-    bodyType: RefreshTokenDto,
+    bodyType: RefreshTokenRequestDto,
     successResponse: {
       type: LoginResponseDto,
     },
   })
-  public async refresh(@Body() req: RefreshTokenDto) {
+  public async refresh(@Body() req: RefreshTokenRequestDto) {
     const response: LoginResponseDto = await this._authService.refresh(
       req.refresh_token,
     );
@@ -57,7 +59,7 @@ export class AuthController {
   @Post('/register/customer')
   @SwaggerUtil({
     summary: 'Customer registration api',
-    bodyType: RefreshTokenDto,
+    bodyType: RefreshTokenRequestDto,
     successResponse: {
       type: null,
     },
@@ -78,7 +80,7 @@ export class AuthController {
   @Post('/register/staff')
   @SwaggerUtil({
     summary: 'Staff registration api',
-    bodyType: RefreshTokenDto,
+    bodyType: RefreshTokenRequestDto,
     successResponse: {
       type: null,
     },

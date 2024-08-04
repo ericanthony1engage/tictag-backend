@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { UserRepository } from '../../repository/user/user.repository';
 import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from '../../schema/user.schema';
@@ -7,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { IConfigDto } from '../../dto/env.dto';
 import { LoginRequestDto, LoginResponseDto } from '../../dto/auth/login.dto';
 import { badRequestHandler } from '../../utils/error-handler.util';
+import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
 
 @Injectable()
 export class AuthService {
@@ -16,29 +22,25 @@ export class AuthService {
     private _configService: ConfigService<IConfigDto>,
   ) {}
 
+  private _generateJwtPayload = (user_data: UserDocument): JwtPayloadDto => ({
+    sub: user_data._id as string,
+    role: user_data.role,
+  });
+
   private _generateJwtToken = async (
     user_data: UserDocument,
     expires: number | string,
   ) =>
-    await this._jwtService.signAsync(
-      {
-        sub: user_data._id,
-        role: user_data.role,
-      },
-      {
-        secret: this._configService.get('JWT_SECRET'),
-        expiresIn: expires,
-      },
-    );
+    await this._jwtService.signAsync(this._generateJwtPayload(user_data), {
+      secret: this._configService.get('JWT_SECRET'),
+      expiresIn: expires,
+    });
 
   public login = async (data: LoginRequestDto): Promise<LoginResponseDto> => {
     const user_data: UserDocument =
       await this._userRepository.getUserByUsername(data.username);
     if (user_data === null) {
-      throw new HttpException(
-        'Username or password incorrect',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Username or password incorrect');
     }
 
     if (!(await bcrypt.compare(data.password, user_data.password))) {

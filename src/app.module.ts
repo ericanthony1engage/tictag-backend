@@ -1,11 +1,12 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as joi from 'joi';
 import { Connection } from './config/database/connection';
 import { IConfigDto } from './dto/env.dto';
 import { AuthControllerModule } from './controller/auth/auth.module';
-import { JoiConfigMiddleware } from './middleware/joi-config.middleware';
+import { ProductControllerModule } from './controller/product/product.module';
+import { JwtStrategy } from './auth/jwt/jwt.strategy';
 
 @Module({
   imports: [
@@ -41,10 +42,8 @@ import { JoiConfigMiddleware } from './middleware/joi-config.middleware';
       useFactory: Connection,
     }),
     AuthControllerModule,
+    ProductControllerModule,
   ],
+  providers: [JwtStrategy],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JoiConfigMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}

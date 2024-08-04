@@ -33,9 +33,8 @@ export const SwaggerUtil = (param: SwaggerEndpointParamDto) => {
     };
   }
 
-  return applyDecorators(
+  const decorators = [
     extra_model,
-    ApiBody({ type: param.bodyType }),
     ApiOperation({ summary: param.summary }),
     ApiOkResponse({
       status: param.successResponse.status ?? HttpStatus.OK,
@@ -68,5 +67,11 @@ export const SwaggerUtil = (param: SwaggerEndpointParamDto) => {
         ],
       },
     }),
-  );
+  ];
+
+  if (param.bodyType) {
+    decorators.splice(1, 0, ApiBody({ type: param.bodyType }));
+  }
+
+  return applyDecorators(...decorators);
 };
