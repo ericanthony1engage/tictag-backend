@@ -20,6 +20,7 @@ import { CreateProductRequestDto } from '../../dto/product/product.create.dto';
 import { JwtStaffGuard } from '../../auth/jwt/jwt-staff.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { RequestWithUser } from '../../dto/auth/request-with-user.dto';
+import { ProductResponseDto } from '../../dto/product/product.get-all.dto';
 
 @UseGuards(AuthGuard('jwt'), JwtStaffGuard)
 @Controller('product')
@@ -35,10 +36,13 @@ export class ProductController {
   })
   public async get(
     @Query('page') page: number,
-  ): Promise<JsonResponseDto<Product[]>> {
-    const data: Product[] = await this._productService.getAllProducts(page);
+  ): Promise<JsonResponseDto<ProductResponseDto[]>> {
+    const data: ProductResponseDto[] =
+      await this._productService.getAllProducts(page);
 
-    return new JsonResponseUtil<Product[]>().setData(data).toPlainObject();
+    return new JsonResponseUtil<ProductResponseDto[]>()
+      .setData(data)
+      .toPlainObject();
   }
 
   @Post('/')

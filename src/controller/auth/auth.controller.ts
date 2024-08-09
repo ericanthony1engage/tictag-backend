@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UsePipes } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UsePipes,
+  Request,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from '../../services/auth/auth.service';
 import {
   JsonResponseDto,
@@ -13,6 +21,9 @@ import { RegisterValidationPipe } from '../../pipes/register.pipes';
 import { RegisterRequestDto } from '../../dto/auth/register.dto';
 import { SwaggerUtil } from '../../utils/swagger.util';
 import { ApiTags } from '@nestjs/swagger';
+import { RequestWithUser } from '../../dto/auth/request-with-user.dto';
+import { ProfileResponseDto } from '../../dto/auth/profile.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -33,6 +44,26 @@ export class AuthController {
   ): Promise<JsonResponseDto<LoginResponseDto>> {
     const response: LoginResponseDto = await this._authService.login(req);
     return new JsonResponseUtil<LoginResponseDto>()
+      .setData(response)
+      .toPlainObject();
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/profile')
+  @SwaggerUtil({
+    summary: 'Get user profie',
+    successResponse: {
+      type: ProfileResponseDto,
+    },
+  })
+  public async getProfile(
+    @Request() req: RequestWithUser,
+  ): Promise<JsonResponseDto<ProfileResponseDto>> {
+    const response: ProfileResponseDto = await this._authService.getProfile(
+      req.user.sub,
+    );
+
+    return new JsonResponseUtil<ProfileResponseDto>()
       .setData(response)
       .toPlainObject();
   }

@@ -13,6 +13,7 @@ import { IConfigDto } from '../../dto/env.dto';
 import { LoginRequestDto, LoginResponseDto } from '../../dto/auth/login.dto';
 import { badRequestHandler } from '../../utils/error-handler.util';
 import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
+import { ProfileResponseDto } from '../../dto/auth/profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -89,6 +90,15 @@ export class AuthService {
         this._configService.get('JWT_ACCESS_TOKEN_EXPIRES'),
       ),
       refresh_token: refresh_token,
+    };
+  };
+
+  public getProfile = async (user_id: string): Promise<ProfileResponseDto> => {
+    const data: UserDocument = await this._userRepository.getUserById(user_id);
+
+    return {
+      _id: data._id as unknown as string,
+      username: data.username,
     };
   };
 }

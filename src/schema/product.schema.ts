@@ -15,6 +15,9 @@ export class Product {
   @Prop({ required: true })
   price: number;
 
+  @Prop({ default: 'SGD', required: false })
+  currency?: string;
+
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   createdBy: User;
 }

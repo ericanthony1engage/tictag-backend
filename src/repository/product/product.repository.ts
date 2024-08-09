@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Product } from '../../schema/product.schema';
+import { Product, ProductDocument } from '../../schema/product.schema';
 
 @Injectable()
 export class ProductRepository {
@@ -13,15 +13,20 @@ export class ProductRepository {
   public checkProductNameExists = (product_name: string): Promise<boolean> =>
     this._model.exists({ name: product_name }).lean();
 
-  public getAllProducts = (limit: number, page: number): Promise<Product[]> =>
+  public getAllProducts = (
+    limit: number,
+    page: number,
+  ): Promise<ProductDocument[]> =>
     this._model
       .find()
-      .populate('createdBy', 'username')
+      .select('id name description price')
       .limit(limit)
       .skip(limit * (page - 1))
       .lean();
 
-  public getProductById = (id: string | Types.ObjectId): Promise<Product> =>
+  public getProductById = (
+    id: string | Types.ObjectId,
+  ): Promise<ProductDocument> =>
     this._model.findById(id).populate('createdBy', 'username').lean();
 
   public addProduct = (product: Product): Promise<Product> =>
@@ -30,8 +35,9 @@ export class ProductRepository {
   public updateProductById = (
     id: string | Types.ObjectId,
     data: Product,
-  ): Promise<Product> => this._model.findByIdAndUpdate(id, data).lean();
+  ): Promise<ProductDocument> => this._model.findByIdAndUpdate(id, data).lean();
 
-  public removeProductById = (id: string | Types.ObjectId): Promise<Product> =>
-    this._model.findByIdAndDelete(id).lean();
+  public removeProductById = (
+    id: string | Types.ObjectId,
+  ): Promise<ProductDocument> => this._model.findByIdAndDelete(id).lean();
 }

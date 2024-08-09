@@ -5,5 +5,8 @@ export class CreateProductRequestDto {
 }
 
 export class CreateProductResponseDto extends CreateProductRequestDto {
-  id: string;
+  _id: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
